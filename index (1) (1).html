@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style1.css">
+    <title>Tela de Login</title>
+</head>
+<body>
+    <button id="theme-switch">
+        <span>🌙</span>
+        <span>☀️</span>
+    </button>
+    <div class="login-container">
+        <h2>Seja Bem-Vindo(a), Vamos ver esse sorriso!</h2>
+        <form action="login.php" method="POST">
+            <div class="form-group">
+                <div class="form-group">
+                    <label for="username">Usuário ou Email</label>
+                    <div class="input-wrap">
+                        <input type="text" id="username" name="username" placeholder="Digite seu usuário" required>
+                        <button type="button" class="mic-btn" id="mic-user" onclick="startVoice('username', 'mic-user')">🎤</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <div class="input-wrap">
+                        <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+                        <button type="button" class="mic-btn" id="mic-pass" onclick="startVoice('password', 'mic-pass')">🎤</button>
+                    </div>
+                </div>
+                
+                <p id="status-voz" style="text-align:center; font-size:13px; color:#888; min-height:18px;"></p>
+            <button type="submit" class="btn-login">Entrar</button>
+            <div class="extra-links">
+                <a href="#">Esqueceu a senha?</a> | 
+                <a href="#">Criar conta</a>
+            </div>
+
+        </form>
+    </div>
+    <script>
+        const btn = document.getElementById('theme-switch');
+    
+        btn.addEventListener('click', function() {
+            document.body.classList.toggle('dark');
+        });
+    </script>
+    <script>
+    
+        // ── Assistente de voz ──
+        function startVoice(campoId, btnId) {
+    
+            // Pega a API do navegador (webkit = Chrome/Edge, sem prefixo = Firefox)
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const status = document.getElementById('status-voz');
+            const btn    = document.getElementById(btnId);
+    
+            // Avisa se o navegador não suportar
+            if (!SpeechRecognition) {
+                status.textContent = 'Seu navegador não suporta reconhecimento de voz.';
+                return;
+            }
+    
+            // Cria e configura o reconhecedor
+            const recognition = new SpeechRecognition();
+            recognition.lang            = 'pt-BR';   // idioma português Brasil
+            recognition.interimResults  = false;      // só resultado final
+            recognition.maxAlternatives = 1;          // só 1 opção de resposta
+    
+            // Ativa animação e status
+            btn.classList.add('ouvindo');
+            status.textContent = 'Ouvindo...';
+    
+            recognition.start(); // começa a ouvir
+    
+            // Quando capturar a fala:
+            recognition.onresult = function(event) {
+                const texto = event.results[0][0].transcript; // pega o texto
+                document.getElementById(campoId).value = texto; // coloca no input
+                status.textContent = 'Preenchido: "' + texto + '"';
+                btn.classList.remove('ouvindo');
+            };
+    
+            // Se der erro:
+            recognition.onerror = function(event) {
+                status.textContent = 'Erro: ' + event.error;
+                btn.classList.remove('ouvindo');
+            };
+    
+            // Quando parar de ouvir:
+            recognition.onend = function() {
+                btn.classList.remove('ouvindo');
+            };
+        }
+    </script>
+</body>
+</html>
